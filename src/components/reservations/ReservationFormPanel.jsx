@@ -7,7 +7,7 @@ import { cn } from "../../lib/cn";
 import { CalendarPopover } from "./CalendarPopover";
 import { TableTagInput } from "./TableTagInput";
 import { AllergyTagInput } from "./AllergyTagInput";
-import { STATUSES, formatServiceDate, formatHourLabel, timeSlotKey, findTableConflicts } from "../../data/reservations";
+import { STATUSES, formatServiceDate, formatHourLabel, timeSlotKey, findTableConflicts, findNameConflicts } from "../../data/reservations";
 
 const SERVICE_OPTIONS = [
   { value: "lunch", label: "Déjeuner" },
@@ -50,18 +50,32 @@ export function ReservationFormPanel({ open, service, initialDate, dataByDate, o
 
   const isValid = form.client.trim().length > 0 && form.time.trim().length > 0;
 
-  const conflicts = useMemo(
-    () =>
-      dataByDate
-        ? findTableConflicts(dataByDate, {
-            date: form.date,
-            service: form.service,
-            time: form.time,
-            tables: form.tables,
-          })
-        : [],
-    [dataByDate, form.date, form.service, form.time, form.tables],
-  );
+  // Deux causes d'alerte distinctes, fusionnées par réservation : la même
+  // table réutilisée trop tôt, ou le même client qui apparaît deux fois à
+  // moins d'une heure d'écart (souvent une saisie en double).
+  const conflicts = useMemo(() => {
+    if (!dataByDate) return [];
+    const tableHits = findTableConflicts(dataByDate, {
+      date: form.date,
+      service: form.service,
+      time: form.time,
+      tables: form.tables,
+    });
+    const nameHits = findNameConflicts(dataByDate, {
+      date: form.date,
+      service: form.service,
+      time: form.time,
+      client: form.client,
+    });
+    const byId = new Map();
+    for (const r of tableHits) byId.set(r.id, { ...r, reasons: new Set(["table"]) });
+    for (const r of nameHits) {
+      const existing = byId.get(r.id);
+      if (existing) existing.reasons.add("name");
+      else byId.set(r.id, { ...r, reasons: new Set(["name"]) });
+    }
+    return [...byId.values()];
+  }, [dataByDate, form.date, form.service, form.time, form.tables, form.client]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -272,9 +286,24 @@ function ConflictAlert({ conflicts, tables }) {
       <div>
         {conflicts.map((c) => {
           const overlapping = c.tables.filter((t) => tables.includes(t));
+          const hasTable = c.reasons.has("table");
+          const hasName = c.reasons.has("name");
+          const hour = formatHourLabel(timeSlotKey(c.time));
           return (
             <p key={c.id}>
-              Table {overlapping.join(", ")} déjà prise par <strong>{c.client}</strong> à {formatHourLabel(timeSlotKey(c.time))}.
+              {hasTable && hasName ? (
+                <>
+                  Table {overlapping.join(", ")} déjà prise par <strong>{c.client}</strong> (même nom) à {hour}.
+                </>
+              ) : hasTable ? (
+                <>
+                  Table {overlapping.join(", ")} déjà prise par <strong>{c.client}</strong> à {hour}.
+                </>
+              ) : (
+                <>
+                  Une réservation existe déjà au nom de <strong>{c.client}</strong> à {hour}.
+                </>
+              )}
             </p>
           );
         })}

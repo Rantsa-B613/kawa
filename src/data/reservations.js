@@ -333,6 +333,26 @@ export function findTableConflicts(dataByDate, { date, service, time, tables, ex
   );
 }
 
+// Même logique que les tables, mais sur le nom du client : un même nom qui
+// réserve deux fois à moins d'une heure d'écart est presque toujours une
+// erreur de saisie (double clic, doublon papier/téléphone) plutôt qu'une
+// vraie deuxième réservation.
+export function findNameConflicts(dataByDate, { date, service, time, client, excludeId }) {
+  if (!client || !client.trim() || !time) return [];
+  const dateKey = toISODate(date);
+  const list = dataByDate[dateKey]?.[service] ?? [];
+  const targetMinutes = timeToMinutes(time);
+  const normalized = client.trim().toLowerCase();
+  return list.filter(
+    (r) =>
+      r.id !== excludeId &&
+      r.status !== "cancelled" &&
+      r.status !== "no_show" &&
+      r.client.trim().toLowerCase() === normalized &&
+      Math.abs(timeToMinutes(r.time) - targetMinutes) <= CONFLICT_WINDOW_MINUTES,
+  );
+}
+
 export function groupByTime(reservations) {
   const groups = new Map();
   for (const r of reservations) {
