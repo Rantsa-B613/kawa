@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
-import { Phone, Users, Table2, MessageCircleWarning, CheckCheck, ChevronRight, Crown, TriangleAlert } from "lucide-react";
+import { Phone, Users, Table2, MessageCircleWarning, CheckCheck, Crown, TriangleAlert, UserX } from "lucide-react";
 import { StatusBadge, STATUS_ACCENT } from "../ui/StatusBadge";
 import { cn } from "../../lib/cn";
 import { compactTableLabel, reservationProgress } from "../../data/reservations";
 
-export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived }) {
+export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, onMarkNoShow }) {
   const table = compactTableLabel(reservation.tables);
   const isCancelled = reservation.status === "cancelled";
+  // Annulée et no-show partagent exactement le même traitement visuel (grisé,
+  // texte barré) : dans les deux cas, la table n'a jamais été honorée.
+  const isInactive = isCancelled || reservation.status === "no_show";
   const canCheckIn = reservation.status === "confirmed" || reservation.status === "pending";
 
   // Barre du bas = jauge de proximité : confirmée se remplit à mesure que
@@ -38,7 +41,7 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived }
       }}
       className={cn(
         "card group relative flex cursor-pointer flex-col gap-3 overflow-hidden p-4 transition-[box-shadow,border-color] duration-0 hover:border-ink/20 hover:shadow-pop focus-visible:border-accent sm:flex-row sm:items-center sm:justify-between sm:gap-4",
-        isCancelled && "opacity-60",
+        isInactive && "opacity-60",
       )}
     >
       <span
@@ -58,7 +61,7 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived }
           <p
             className={cn(
               "min-w-0 truncate text-[15px] font-bold text-ink",
-              isCancelled && "line-through decoration-ink-faint",
+              isInactive && "line-through decoration-ink-faint",
             )}
           >
             {reservation.client}
@@ -133,7 +136,7 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived }
             <button
               type="button"
               onClick={() => onMarkArrived(reservation.id)}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-paper-card px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-accent hover:text-accent"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-paper-card px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
             >
               <CheckCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Arrivée
@@ -141,7 +144,25 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived }
           ) : null}
         </span>
 
-        <ChevronRight className="h-4 w-4 flex-shrink-0 text-ink-faint transition-transform duration-0 group-hover:translate-x-0.5" aria-hidden="true" />
+        {/* Bouton d'action, pas un simple indicatif : marque directement la
+            réservation en "No-show" (le client n'a pas annulé, il n'est
+            juste jamais venu) — carré plutôt que rond pour se lire comme un
+            bouton, pas comme un badge de statut passif. Discret (fond blanc,
+            juste bordure + icône rouges) : ça reste l'exception, pas l'issue
+            la plus fréquente d'une réservation. */}
+        <span className="flex w-8 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+          {canCheckIn ? (
+            <button
+              type="button"
+              onClick={() => onMarkNoShow(reservation.id)}
+              aria-label="Marquer en no-show"
+              title="Marquer en no-show"
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-danger-line bg-paper-card text-danger transition-colors hover:bg-danger-soft"
+            >
+              <UserX className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          ) : null}
+        </span>
       </div>
     </motion.div>
   );

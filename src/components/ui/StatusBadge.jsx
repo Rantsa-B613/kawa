@@ -1,11 +1,11 @@
-import { Check, CheckCheck, Clock, Ban } from "lucide-react";
+import { Check, CheckCheck, Clock, Ban, UserX } from "lucide-react";
 import { cn } from "../../lib/cn";
 
-// 4 variantes. Différenciées par icône + libellé + intensité de remplissage,
-// pas par 4 teintes distinctes : "confirmée" et "arrivée" restent dans la
+// 5 variantes. Différenciées par icône + libellé + intensité de remplissage,
+// pas par 5 teintes distinctes : "confirmée" et "occupée" restent dans la
 // même famille verte (accent unique), "en attente" est le seul avertissement
-// sémantique (ambre), "annulée" retombe en neutre gris plutôt qu'en rouge —
-// le rouge est réservé à l'action destructrice, pas à un statut.
+// sémantique (ambre), "annulée" et "no-show" retombent en neutre gris plutôt
+// qu'en rouge — le rouge est réservé à l'action destructrice, pas à un statut.
 const CONFIG = {
   confirmed: {
     label: "Confirmée",
@@ -13,7 +13,7 @@ const CONFIG = {
     className: "bg-accent-soft text-accent border border-accent-line",
   },
   arrived: {
-    label: "Arrivée",
+    label: "Occupée",
     icon: CheckCheck,
     className: "bg-accent text-white border border-accent",
   },
@@ -25,6 +25,14 @@ const CONFIG = {
   cancelled: {
     label: "Annulée",
     icon: Ban,
+    className: "bg-paper-soft text-ink-muted border border-line",
+  },
+  // Réservation confirmée dont le client n'est jamais venu, sans annulation
+  // préalable — même famille neutre que "annulée", icône dédiée pour rester
+  // distinguable au premier coup d'œil.
+  no_show: {
+    label: "No-show",
+    icon: UserX,
     className: "bg-paper-soft text-ink-muted border border-line",
   },
 };
@@ -58,4 +66,5 @@ export const STATUS_ACCENT = {
   arrived: "bg-accent-line",
   pending: "bg-warn-line",
   cancelled: "bg-ink-faint",
+  no_show: "bg-ink-faint",
 };

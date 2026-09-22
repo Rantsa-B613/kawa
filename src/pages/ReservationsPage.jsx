@@ -214,6 +214,12 @@ export function ReservationsPage() {
     notify("Réservation marquée arrivée");
   }
 
+  function handleMarkNoShow(id) {
+    updateReservation(id, { status: "no_show" });
+    setSelected((prev) => (prev && prev.id === id ? { ...prev, status: "no_show" } : prev));
+    notify("Réservation marquée no-show");
+  }
+
   function handleSave(updated) {
     updateReservation(updated.id, updated);
     setSelected(updated);
@@ -303,6 +309,7 @@ export function ReservationsPage() {
                     date={selectedDate}
                     onOpen={setSelected}
                     onMarkArrived={handleMarkArrived}
+                    onMarkNoShow={handleMarkNoShow}
                   />
                 </div>
               ) : null}
@@ -333,6 +340,7 @@ export function ReservationsPage() {
                       date={selectedDate}
                       onOpen={setSelected}
                       onMarkArrived={handleMarkArrived}
+                      onMarkNoShow={handleMarkNoShow}
                     />
                   )}
                 </motion.div>

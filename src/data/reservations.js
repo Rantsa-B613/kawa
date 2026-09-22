@@ -4,9 +4,12 @@
 
 export const STATUSES = [
   { key: "confirmed", label: "Confirmée" },
-  { key: "arrived", label: "Arrivée" },
+  { key: "arrived", label: "Occupée" },
   { key: "pending", label: "En attente" },
   { key: "cancelled", label: "Annulée" },
+  // Réservation confirmée mais jamais annoncée annulée : le client n'est
+  // simplement jamais venu — distinct d'une annulation faite à l'avance.
+  { key: "no_show", label: "No-show" },
 ];
 
 // "Aujourd'hui" (pas une date figée) : sinon "Bientôt" et la barre de
@@ -231,7 +234,9 @@ export function isLargeParty(reservation) {
 }
 
 export function computeSummary(reservations) {
-  const active = reservations.filter((r) => r.status !== "cancelled");
+  // Annulée ou no-show : la table n'a, dans les deux cas, jamais été
+  // vraiment occupée — les deux sortent des compteurs "actifs".
+  const active = reservations.filter((r) => r.status !== "cancelled" && r.status !== "no_show");
   return {
     count: reservations.length,
     guests: active.reduce((sum, r) => sum + r.guests, 0),
@@ -246,7 +251,7 @@ export function computeSummary(reservations) {
 // passée, déjà arrivée ou annulée. Répond au besoin du brief : voir en 3
 // secondes qui arrive dans les prochaines minutes.
 export function isUpcomingSoon(reservation, date, now = new Date(), windowMinutes = 90) {
-  if (reservation.status === "cancelled" || reservation.status === "arrived") return false;
+  if (reservation.status === "cancelled" || reservation.status === "arrived" || reservation.status === "no_show") return false;
   const [h, m] = reservation.time.split(":").map(Number);
   const reservationTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
   const diffMinutes = (reservationTime.getTime() - now.getTime()) / 60000;
@@ -301,19 +306,29 @@ export function listTimeSlots(reservations) {
   return [...new Set(reservations.map((r) => timeSlotKey(r.time)))].sort();
 }
 
-// Alerte non bloquante dans le formulaire de création : une table peut être
-// proposée deux fois sur le même créneau (double réservation, erreur de
-// saisie…) — on prévient, mais on laisse la personne valider quand même.
+function timeToMinutes(time) {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// Alerte non bloquante dans le formulaire de création : une table ne devrait
+// pas être proposée deux fois à moins d'une heure d'écart (pas assez de
+// temps pour tourner la table) — comparaison sur l'écart réel en minutes,
+// pas sur un simple regroupement par heure ronde (19h55 et 20h05 doivent se
+// voir mutuellement même si c'est deux "créneaux" différents).
+const CONFLICT_WINDOW_MINUTES = 60;
+
 export function findTableConflicts(dataByDate, { date, service, time, tables, excludeId }) {
   if (!tables || tables.length === 0 || !time) return [];
   const dateKey = toISODate(date);
   const list = dataByDate[dateKey]?.[service] ?? [];
-  const slot = timeSlotKey(time);
+  const targetMinutes = timeToMinutes(time);
   return list.filter(
     (r) =>
       r.id !== excludeId &&
       r.status !== "cancelled" &&
-      timeSlotKey(r.time) === slot &&
+      r.status !== "no_show" &&
+      Math.abs(timeToMinutes(r.time) - targetMinutes) <= CONFLICT_WINDOW_MINUTES &&
       r.tables.some((t) => tables.includes(t)),
   );
 }

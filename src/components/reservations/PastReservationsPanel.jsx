@@ -23,7 +23,7 @@ const STATUS_LABELS = {
 
 // Fermé par défaut : ces réservations sont déjà passées, elles ne doivent
 // pas prendre de place tant qu'on n'a pas explicitement choisi de les voir.
-export function PastReservationsPanel({ reservations, date, onOpen, onMarkArrived }) {
+export function PastReservationsPanel({ reservations, date, onOpen, onMarkArrived, onMarkNoShow }) {
   const [open, setOpen] = useState(false);
 
   const counts = STATUSES.map((s) => ({ key: s.key, count: reservations.filter((r) => r.status === s.key).length })).filter(
@@ -68,7 +68,13 @@ export function PastReservationsPanel({ reservations, date, onOpen, onMarkArrive
             className="overflow-hidden"
           >
             <div className="border-t border-line px-5 py-5">
-              <ReservationList reservations={reservations} date={date} onOpen={onOpen} onMarkArrived={onMarkArrived} />
+              <ReservationList
+                reservations={reservations}
+                date={date}
+                onOpen={onOpen}
+                onMarkArrived={onMarkArrived}
+                onMarkNoShow={onMarkNoShow}
+              />
             </div>
           </motion.div>
         ) : null}

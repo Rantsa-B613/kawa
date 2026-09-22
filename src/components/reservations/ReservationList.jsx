@@ -4,7 +4,7 @@ import { ReservationRow } from "./ReservationRow";
 
 const PROGRESS_TICK_MS = 30_000;
 
-export function ReservationList({ reservations, date, onOpen, onMarkArrived }) {
+export function ReservationList({ reservations, date, onOpen, onMarkArrived, onMarkNoShow }) {
   const groups = groupByTime(reservations);
   // Horloge qui tick pour que la barre de progression des lignes avance
   // vraiment pendant qu'on regarde l'écran, sans avoir à recharger la page.
@@ -37,6 +37,7 @@ export function ReservationList({ reservations, date, onOpen, onMarkArrived }) {
                 now={now}
                 onOpen={onOpen}
                 onMarkArrived={onMarkArrived}
+                onMarkNoShow={onMarkNoShow}
               />
             ))}
           </div>
