@@ -126,48 +126,54 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
           <span className="truncate">{table ?? "Aucune"}</span>
         </span>
 
-        <span className="flex w-32 flex-shrink-0">
-          <StatusBadge status={reservation.status} />
-        </span>
+        {/* Statut + actions regroupés dans un seul bloc qui ne se sépare
+            jamais au retour à la ligne (mobile) : soit tout tient à côté des
+            personnes/table, soit tout descend ensemble — jamais le statut
+            seul en haut et les boutons livrés à eux-mêmes plus bas. */}
+        <div className="flex flex-shrink-0 items-center gap-3">
+          <span className="flex w-32 flex-shrink-0">
+            <StatusBadge status={reservation.status} />
+          </span>
 
-        {/* Les deux boutons d'action (Arrivée / No-show) et l'espace entre eux
-            sont regroupés dans un seul conteneur qui stoppe la propagation —
-            avant, chaque bouton avait sa propre petite zone, et cliquer entre
-            les deux ou juste à côté retombait sur la ligne (donc ouvrait la
-            fiche détail). Le conteneur est volontairement plus large que le
-            contenu pour laisser de la marge à un clic pas parfaitement précis. */}
-        <div
-          className="flex w-44 flex-shrink-0 items-center gap-2"
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
-          {canCheckIn ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkArrived(reservation.id);
-              }}
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-paper-card px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
-            >
-              <CheckCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              Arrivée
-            </button>
-          ) : null}
-          {canCheckIn ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkNoShow(reservation.id);
-              }}
-              aria-label="Marquer en no-show"
-              title="Marquer en no-show"
-              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-danger-line bg-paper-card text-danger transition-colors hover:bg-danger-soft"
-            >
-              <UserX className="h-3.5 w-3.5" aria-hidden="true" />
-            </button>
-          ) : null}
+          {/* Les deux boutons d'action (Arrivée / No-show) et l'espace entre eux
+              sont regroupés dans un seul conteneur qui stoppe la propagation —
+              avant, chaque bouton avait sa propre petite zone, et cliquer entre
+              les deux ou juste à côté retombait sur la ligne (donc ouvrait la
+              fiche détail). Le conteneur est volontairement plus large que le
+              contenu pour laisser de la marge à un clic pas parfaitement précis. */}
+          <div
+            className="flex w-44 flex-shrink-0 items-center gap-2"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            {canCheckIn ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMarkArrived(reservation.id);
+                }}
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-paper-card px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
+              >
+                <CheckCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                Arrivée
+              </button>
+            ) : null}
+            {canCheckIn ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMarkNoShow(reservation.id);
+                }}
+                aria-label="Marquer en no-show"
+                title="Marquer en no-show"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-danger-line bg-paper-card text-danger transition-colors hover:bg-danger-soft"
+              >
+                <UserX className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            ) : null}
+          </div>
         </div>
       </div>
     </motion.div>
