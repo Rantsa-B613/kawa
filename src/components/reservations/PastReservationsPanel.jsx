@@ -12,6 +12,7 @@ const STATUS_TEXT = {
   arrived: "text-accent",
   pending: "text-warn",
   cancelled: "text-ink-muted",
+  no_show: "text-ink-muted",
 };
 
 const STATUS_LABELS = {
@@ -19,6 +20,7 @@ const STATUS_LABELS = {
   arrived: ["arrivée", "arrivées"],
   pending: ["en attente", "en attente"],
   cancelled: ["annulée", "annulées"],
+  no_show: ["no-show", "no-show"],
 };
 
 // Fermé par défaut : ces réservations sont déjà passées, elles ne doivent

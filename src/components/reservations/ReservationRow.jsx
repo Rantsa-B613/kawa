@@ -27,7 +27,6 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
 
   return (
     <motion.div
-      whileHover={{ scale: 1.015 }}
       whileTap={{ scale: 0.99 }}
       transition={{ duration: 0 }}
       role="button"
@@ -131,8 +130,14 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
           <StatusBadge status={reservation.status} />
         </span>
 
-        <span
-          className="hidden w-28 flex-shrink-0 sm:flex"
+        {/* Les deux boutons d'action (Arrivée / No-show) et l'espace entre eux
+            sont regroupés dans un seul conteneur qui stoppe la propagation —
+            avant, chaque bouton avait sa propre petite zone, et cliquer entre
+            les deux ou juste à côté retombait sur la ligne (donc ouvrait la
+            fiche détail). Le conteneur est volontairement plus large que le
+            contenu pour laisser de la marge à un clic pas parfaitement précis. */}
+        <div
+          className="hidden w-44 flex-shrink-0 items-center gap-2 sm:flex"
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
         >
@@ -149,19 +154,6 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
               Arrivée
             </button>
           ) : null}
-        </span>
-
-        {/* Bouton d'action, pas un simple indicatif : marque directement la
-            réservation en "No-show" (le client n'a pas annulé, il n'est
-            juste jamais venu) — carré plutôt que rond pour se lire comme un
-            bouton, pas comme un badge de statut passif. Discret (fond blanc,
-            juste bordure + icône rouges) : ça reste l'exception, pas l'issue
-            la plus fréquente d'une réservation. */}
-        <span
-          className="flex w-8 flex-shrink-0"
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
-        >
           {canCheckIn ? (
             <button
               type="button"
@@ -176,7 +168,7 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
               <UserX className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           ) : null}
-        </span>
+        </div>
       </div>
     </motion.div>
   );
