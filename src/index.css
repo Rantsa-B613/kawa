@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    /* 14px au lieu de 16px : tout ce qui est en rem (Tailwind par défaut :
+       paddings, gaps, tailles de texte, icônes) se réduit réellement,
+       contrairement à un zoom CSS qui ne fait que ré-échantillonner le rendu. */
+    font-size: 87.5%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+
+  /* Pas de rounded-* ici : ça écraserait le border-radius propre de chaque
+     élément (pilule, rounded-xl…). L'outline suit déjà la forme réelle. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-accent-hover;
+  }
+
+  ::selection {
+    @apply bg-accent-soft text-ink;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-paper-card shadow-card;
+  }
+}
