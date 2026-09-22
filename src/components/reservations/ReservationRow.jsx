@@ -131,11 +131,18 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
           <StatusBadge status={reservation.status} />
         </span>
 
-        <span className="hidden w-28 flex-shrink-0 sm:flex" onClick={(e) => e.stopPropagation()}>
+        <span
+          className="hidden w-28 flex-shrink-0 sm:flex"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           {canCheckIn ? (
             <button
               type="button"
-              onClick={() => onMarkArrived(reservation.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkArrived(reservation.id);
+              }}
               className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-line bg-paper-card px-3 text-xs font-semibold text-ink-soft transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent"
             >
               <CheckCheck className="h-3.5 w-3.5" aria-hidden="true" />
@@ -150,11 +157,18 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
             bouton, pas comme un badge de statut passif. Discret (fond blanc,
             juste bordure + icône rouges) : ça reste l'exception, pas l'issue
             la plus fréquente d'une réservation. */}
-        <span className="flex w-8 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+        <span
+          className="flex w-8 flex-shrink-0"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
           {canCheckIn ? (
             <button
               type="button"
-              onClick={() => onMarkNoShow(reservation.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkNoShow(reservation.id);
+              }}
               aria-label="Marquer en no-show"
               title="Marquer en no-show"
               className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-danger-line bg-paper-card text-danger transition-colors hover:bg-danger-soft"

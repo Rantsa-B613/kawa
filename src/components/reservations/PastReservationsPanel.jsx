@@ -54,7 +54,7 @@ export function PastReservationsPanel({ reservations, date, onOpen, onMarkArrive
           ))}
         </div>
         <ChevronDown
-          className={cn("h-4 w-4 flex-shrink-0 text-ink-faint transition-transform duration-150", open && "rotate-180")}
+          className={cn("h-4 w-4 flex-shrink-0 text-ink-faint transition-transform duration-0", open && "rotate-180")}
           aria-hidden="true"
         />
       </button>
@@ -64,7 +64,7 @@ export function PastReservationsPanel({ reservations, date, onOpen, onMarkArrive
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0 }}
             className="overflow-hidden"
           >
             <div className="border-t border-line px-5 py-5">
