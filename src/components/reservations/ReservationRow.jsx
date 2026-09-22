@@ -137,7 +137,7 @@ export function ReservationRow({ reservation, date, now, onOpen, onMarkArrived, 
             fiche détail). Le conteneur est volontairement plus large que le
             contenu pour laisser de la marge à un clic pas parfaitement précis. */}
         <div
-          className="hidden w-44 flex-shrink-0 items-center gap-2 sm:flex"
+          className="flex w-44 flex-shrink-0 items-center gap-2"
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
         >
